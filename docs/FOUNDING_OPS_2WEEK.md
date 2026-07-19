@@ -113,11 +113,19 @@ Message after signup:
 ## Verification SLA (critical path)
 
 ```
-Tasker uploads ID → you get notified (or check admin 2×/day)
-  → Approve if photo readable
-  → Reject with reason if blurry / wrong doc
-  → Message tasker either way
+Tasker uploads ID
+  → Instant email to ADMIN_EMAIL (+ optional Telegram)
+  → Morning digest 08:00 ET if still pending
+  → Stale alert 10:00 ET if >48h
+  → You approve/reject in /admin
+  → Tasker can apply (spend founding credits)
 ```
+
+**Admin UI:** banner when queue &gt; 0; auto-opens Vérifications tab; hours waiting + “Envoyer digest email”.
+
+**Env (Railway):** `ADMIN_EMAIL`, `RESEND_API_KEY`, optional `TELEGRAM_ADMIN_CHAT_ID`, `VERIFICATION_DIGEST_ENABLED=true`.
+
+**Manual test:** `POST /api/v1/admin/verifications/digest` (admin JWT) or button in admin.
 
 Without this SLA, free credits sit unused and taskers churn.
 

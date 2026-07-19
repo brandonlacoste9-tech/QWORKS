@@ -20,6 +20,10 @@ See **[STATUS.md](./STATUS.md)**. As of 2026-07:
    - `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` — ID document storage (optional; falls back to inline)
    - Remove `REDIS_URL` if it points to localhost (in-memory fallback is fine)
    - Optional: `STRIPE_*` for payments
+   - **Admin verification alerts (soft-launch critical):**
+     - `ADMIN_EMAIL` — your inbox (Resend must allow this recipient/domain)
+     - `VERIFICATION_DIGEST_ENABLED=true` — morning digest 08:00 America/Toronto of all pending IDs
+     - Optional `TELEGRAM_ADMIN_CHAT_ID` — instant + digest pings via bot
    - Demo job rotation (recommended on production):
      - `DEMO_JOBS_CRON_ENABLED=true` — daily cron at 5 AM ET
      - `DEMO_JOBS_ROTATION_DAYS=3` — rotate demo set every N days

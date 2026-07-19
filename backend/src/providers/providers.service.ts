@@ -4,6 +4,7 @@ import { PrismaService } from '../common/prisma/prisma.service';
 import { CreditsService } from '../credits/credits.service';
 import { StorageService } from '../common/storage/storage.service';
 import { EmailService } from '../common/email/email.service';
+import { TelegramService } from '../common/services/telegram.service';
 import { geocodeQuebecAddress } from '../common/utils/geocode';
 import { validateRBQLicense } from '../common/utils/rbq-validation';
 
@@ -82,6 +83,7 @@ export class ProvidersService {
     private readonly storageService: StorageService,
     private readonly emailService: EmailService,
     private readonly configService: ConfigService,
+    private readonly telegramService: TelegramService,
   ) {}
 
   async upsertForUser(userId: string, dto: UpsertProviderDto) {
@@ -321,15 +323,34 @@ export class ProvidersService {
     const adminEmail =
       this.configService.get<string>('ADMIN_EMAIL') || 'admin@qemplois.ca';
     const frontendUrl =
-      this.configService.get<string>('FRONTEND_URL') || 'http://localhost:5173';
+      this.configService.get<string>('FRONTEND_URL') ||
+      'https://www.quebec-emplois.ca';
     const taskerName =
       [user.firstName, user.lastName].filter(Boolean).join(' ') || user.email;
+    const provider = await this.prisma.provider.findUnique({
+      where: { userId },
+      select: { serviceTypes: true },
+    });
+    const adminPage = `${frontendUrl.replace(/\/$/, '')}/admin`;
     await this.emailService.sendVerificationPendingAdmin(
       adminEmail,
       taskerName,
       user.email,
-      `${frontendUrl}/admin`,
+      adminPage,
+      provider?.serviceTypes,
     );
+
+    const adminChat = this.configService.get<string>('TELEGRAM_ADMIN_CHAT_ID');
+    if (adminChat && this.telegramService.isConfigured()) {
+      const services =
+        provider?.serviceTypes?.length
+          ? provider.serviceTypes.join(', ')
+          : '—';
+      await this.telegramService.sendMessage(
+        adminChat,
+        `🔔 <b>ID à vérifier</b>\n${taskerName} (${user.email})\nServices: ${services}\n<a href="${adminPage}">Ouvrir l'admin</a>`,
+      );
+    }
 
     return { licenseDocumentUrl: url };
   }

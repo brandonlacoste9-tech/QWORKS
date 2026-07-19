@@ -5,6 +5,7 @@ import { EmailService } from '../common/email/email.service';
 import { AuditService } from '../common/audit/audit.service';
 import { DemoJobsService } from '../common/demo-jobs/demo-jobs.service';
 import { NotificationsService } from '../notifications/notifications.service';
+import { VerificationJobsService } from '../common/services/verification-jobs.service';
 
 @Injectable()
 export class AdminService {
@@ -29,7 +30,13 @@ export class AdminService {
     private readonly auditService: AuditService,
     private readonly demoJobsService: DemoJobsService,
     private readonly notificationsService: NotificationsService,
+    private readonly verificationJobs: VerificationJobsService,
   ) {}
+
+  /** Manually trigger pending-ID digest (email + optional Telegram). */
+  async triggerVerificationDigest() {
+    return this.verificationJobs.sendPendingDigest({ force: true });
+  }
 
   async getBetaMetrics(days = 30) {
     const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);

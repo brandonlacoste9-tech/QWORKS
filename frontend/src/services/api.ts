@@ -593,6 +593,11 @@ class ApiService {
     return response.data;
   }
 
+  async triggerVerificationDigest() {
+    const response = await this.client.post('/admin/verifications/digest');
+    return response.data as { sent: boolean; count: number; overdue: number };
+  }
+
   async approveVerification(providerId: string) {
     const response = await this.client.post(`/admin/verifications/${providerId}/approve`);
     return response.data;

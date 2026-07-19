@@ -79,14 +79,20 @@ export class MediaService {
         const adminEmail =
           this.configService.get<string>('ADMIN_EMAIL') || 'admin@qemplois.ca';
         const frontendUrl =
-          this.configService.get<string>('FRONTEND_URL') || 'http://localhost:5173';
+          this.configService.get<string>('FRONTEND_URL') ||
+          'https://www.quebec-emplois.ca';
         const taskerName =
           [user.firstName, user.lastName].filter(Boolean).join(' ') || user.email;
+        const providerRow = await this.prisma.provider.findUnique({
+          where: { userId },
+          select: { serviceTypes: true },
+        });
         await this.emailService.sendVerificationPendingAdmin(
           adminEmail,
           taskerName,
           user.email,
-          `${frontendUrl}/admin`,
+          `${frontendUrl.replace(/\/$/, '')}/admin`,
+          providerRow?.serviceTypes,
         );
       }
 

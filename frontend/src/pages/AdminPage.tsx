@@ -206,7 +206,44 @@ export function AdminPage() {
     }
   };
 
-  useEffect(() => { loadCore(); }, []);
+  const [digestSending, setDigestSending] = useState(false);
+  const [autoTabDone, setAutoTabDone] = useState(false);
+
+  useEffect(() => {
+    loadCore();
+  }, []);
+
+  // Soft-launch: open Vérifications first when queue is non-empty
+  useEffect(() => {
+    if (!loading && !autoTabDone && pending.length > 0) {
+      setTab('verifications');
+      setAutoTabDone(true);
+    }
+  }, [loading, pending.length, autoTabDone]);
+
+  const sendVerificationDigest = async () => {
+    setDigestSending(true);
+    try {
+      const res = await api.triggerVerificationDigest();
+      if (res.sent) {
+        addToast(
+          `Digest envoyé : ${res.count} en attente${res.overdue ? ` (${res.overdue} >48h)` : ''}`,
+          'success',
+        );
+      } else {
+        addToast(
+          res.count === 0
+            ? 'Aucun dossier en attente — digest non envoyé'
+            : 'Digest non envoyé (vérifier ADMIN_EMAIL / RESEND)',
+          'error',
+        );
+      }
+    } catch {
+      addToast('Échec envoi digest', 'error');
+    } finally {
+      setDigestSending(false);
+    }
+  };
 
   const loadMsgConversations = async () => {
     setMsgConvLoading(true);
@@ -481,6 +518,51 @@ export function AdminPage() {
           </div>
         </div>
 
+        {pending.length > 0 && (
+          <div
+            className="stitch-box"
+            style={{
+              ...card,
+              marginBottom: 16,
+              borderColor: 'rgba(184,123,68,0.55)',
+              background: 'rgba(184,123,68,0.12)',
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: 12,
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}
+          >
+            <div>
+              <p className="serif cream-hi" style={{ fontWeight: 800, fontSize: 16, margin: 0 }}>
+                🔔 {pending.length} pièce(s) d&apos;identité à vérifier
+              </p>
+              <p className="body-f muted2" style={{ fontSize: 13, margin: '6px 0 0' }}>
+                SLA soft-launch : &lt; 24 h. Sans approbation, les founding taskers ne peuvent pas postuler.
+              </p>
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+              <button
+                type="button"
+                className="gold-btn"
+                style={{ padding: '8px 14px', fontSize: 13 }}
+                onClick={() => setTab('verifications')}
+              >
+                Ouvrir la file
+              </button>
+              <button
+                type="button"
+                className="ghost-btn"
+                disabled={digestSending}
+                style={{ padding: '8px 14px', fontSize: 13 }}
+                onClick={sendVerificationDigest}
+              >
+                {digestSending ? 'Envoi…' : 'Envoyer digest email'}
+              </button>
+            </div>
+          </div>
+        )}
+
         <div className="admin-tabs" style={{ display: 'flex', gap: 8, flexWrap: 'nowrap', marginBottom: 24 }}>
           {TABS.map((t) => (
             <button
@@ -510,9 +592,25 @@ export function AdminPage() {
                 { label: 'Taux sélection', value: `${metrics.selectionRatePercent}%` },
                 { label: 'Taux complétion', value: `${metrics.completionRatePercent}%` },
                 { label: 'Remboursements', value: metrics.refundTransactions },
-                { label: 'ID à vérifier', value: metrics.pendingVerifications },
+                {
+                  label: 'ID à vérifier',
+                  value: metrics.pendingVerifications,
+                  highlight: metrics.pendingVerifications > 0,
+                  onClick: () => setTab('verifications'),
+                },
               ].map((s) => (
-                <div key={s.label} className="stitch-box" style={card}>
+                <div
+                  key={s.label}
+                  className="stitch-box"
+                  role={s.onClick ? 'button' : undefined}
+                  onClick={s.onClick}
+                  style={{
+                    ...card,
+                    cursor: s.onClick ? 'pointer' : undefined,
+                    borderColor: s.highlight ? 'rgba(184,123,68,0.55)' : undefined,
+                    background: s.highlight ? 'rgba(184,123,68,0.12)' : card.background,
+                  }}
+                >
                   <p className="body-f muted2" style={{ fontSize: 12 }}>{s.label}</p>
                   <p className="serif cream-hi" style={{ fontSize: 24, fontWeight: 900 }}>{s.value}</p>
                 </div>
@@ -536,19 +634,39 @@ export function AdminPage() {
 
         {tab === 'verifications' && (
           <div className="stitch-box" style={card}>
-            <h2 className="serif cream-hi" style={{ fontSize: 18, fontWeight: 700, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Shield className="w-5 h-5" style={{ color: gold }} /> Vérifications en attente ({pending.length})
-            </h2>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+              <h2 className="serif cream-hi" style={{ fontSize: 18, fontWeight: 700, margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Shield className="w-5 h-5" style={{ color: gold }} /> Vérifications en attente ({pending.length})
+              </h2>
+              <button
+                type="button"
+                className="ghost-btn"
+                disabled={digestSending || pending.length === 0}
+                style={{ padding: '8px 12px', fontSize: 12 }}
+                onClick={sendVerificationDigest}
+              >
+                {digestSending ? 'Envoi…' : 'Renvoyer digest email'}
+              </button>
+            </div>
             {pending.length === 0 ? (
               <p className="body-f muted">Aucun document en attente.</p>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                {pending.map((p) => (
-                  <div key={p.id} style={{ display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'center', padding: 12, background: 'rgba(15,25,36,0.5)', borderRadius: 8 }}>
+                {pending.map((p) => {
+                  const hours = Math.max(
+                    0,
+                    Math.floor((Date.now() - new Date(p.updatedAt).getTime()) / (60 * 60 * 1000)),
+                  );
+                  const overdue = hours >= 48;
+                  return (
+                  <div key={p.id} style={{ display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'center', padding: 12, background: overdue ? 'rgba(196,107,107,0.1)' : 'rgba(15,25,36,0.5)', borderRadius: 8, border: overdue ? '1px solid rgba(196,107,107,0.35)' : undefined }}>
                     <div style={{ flex: 1, minWidth: 200 }}>
                       <p className="serif cream-hi" style={{ fontWeight: 700 }}>{p.firstName} {p.lastName}</p>
                       <p className="body-f muted2" style={{ fontSize: 13 }}>{p.email}</p>
                       <p className="body-f muted2" style={{ fontSize: 12 }}>{p.serviceTypes.join(', ')}</p>
+                      <p className="body-f" style={{ fontSize: 12, marginTop: 4, color: overdue ? '#E8A0A0' : '#C4A882' }}>
+                        En attente depuis {hours}h{overdue ? ' · SLA dépassé' : ''}
+                      </p>
                       {p.rejectedAt && p.rejectionReason && (
                         <div style={{ marginTop: 6, padding: '6px 10px', background: 'rgba(196,107,107,0.12)', border: '1px solid rgba(196,107,107,0.3)', borderRadius: 6 }}>
                           <p className="body-f" style={{ fontSize: 11, color: '#E8A0A0', fontWeight: 600 }}>Rejet précédent</p>
@@ -568,7 +686,8 @@ export function AdminPage() {
                       <X className="w-4 h-4" /> Rejeter
                     </button>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>

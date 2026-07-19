@@ -150,7 +150,11 @@ export class EmailService {
       taskerEmail: string;
       pendingSince: string;
     }>,
+    adminUrl?: string,
   ): Promise<void> {
+    const frontendUrl =
+      adminUrl ||
+      `${this.configService.get('FRONTEND_URL') || 'https://www.quebec-emplois.ca'}/admin`;
     const rows = stale
       .map(
         (s) => `<li><strong>${s.taskerName}</strong> (${s.taskerEmail}) — en attente depuis ${new Date(s.pendingSince).toLocaleDateString('fr-CA')}</li>`,
@@ -158,13 +162,78 @@ export class EmailService {
       .join('');
     await this.send({
       to,
-      subject: `Vérifications en attente >48h — ${stale.length} dossier(s)`,
+      subject: `⚠ Vérifications >48h — ${stale.length} dossier(s) — Q-Emplois`,
       html: `
         <p>Bonjour,</p>
-        <p>Les pièces d'identité suivantes attendent une vérification depuis plus de 48 heures :</p>
+        <p>Les pièces d'identité suivantes attendent une vérification depuis <strong>plus de 48 heures</strong> (SLA soft-launch) :</p>
         <ul>${rows}</ul>
+        <p><a href="${frontendUrl}">Ouvrir l'admin → Vérifications</a></p>
         <p>— Q-Emplois</p>
       `,
+      text: `${stale.length} vérification(s) >48h. ${frontendUrl}`,
+    });
+  }
+
+  /**
+   * Morning digest: all pending ID reviews (0–48h and older).
+   * Sent only when count > 0 so the inbox stays quiet on clean days.
+   */
+  async sendAdminPendingDigest(
+    to: string,
+    pending: Array<{
+      providerId: string;
+      taskerName: string;
+      taskerEmail: string;
+      serviceTypes: string[];
+      pendingSince: string;
+      hoursWaiting: number;
+    }>,
+    adminUrl: string,
+  ): Promise<void> {
+    const rows = pending
+      .map((p) => {
+        const services =
+          p.serviceTypes?.length > 0 ? p.serviceTypes.join(', ') : '—';
+        const age =
+          p.hoursWaiting >= 48
+            ? `<span style="color:#b45309;font-weight:700">${p.hoursWaiting}h ⚠</span>`
+            : `${p.hoursWaiting}h`;
+        return `<tr>
+          <td style="padding:8px;border-bottom:1px solid #eee"><strong>${p.taskerName}</strong><br/><span style="color:#666;font-size:13px">${p.taskerEmail}</span></td>
+          <td style="padding:8px;border-bottom:1px solid #eee;font-size:13px">${services}</td>
+          <td style="padding:8px;border-bottom:1px solid #eee">${age}</td>
+        </tr>`;
+      })
+      .join('');
+    const overdue = pending.filter((p) => p.hoursWaiting >= 48).length;
+    const subject =
+      overdue > 0
+        ? `Digest vérifications — ${pending.length} en attente (${overdue} >48h)`
+        : `Digest vérifications — ${pending.length} en attente`;
+
+    await this.send({
+      to,
+      subject: `${subject} — Q-Emplois`,
+      html: `
+        <p>Bonjour,</p>
+        <p>File de vérification identité (soft-launch) — <strong>${pending.length}</strong> dossier(s).
+        ${overdue > 0 ? ` Dont <strong>${overdue}</strong> au-delà de 48 h.` : ''}</p>
+        <p>Les travailleurs ne peuvent <strong>pas postuler</strong> tant que vous n'avez pas approuvé leur pièce d'identité.</p>
+        <table style="width:100%;border-collapse:collapse;margin:16px 0;font-family:sans-serif;font-size:14px">
+          <thead>
+            <tr style="text-align:left;background:#f5f0e8">
+              <th style="padding:8px">Travailleur</th>
+              <th style="padding:8px">Services</th>
+              <th style="padding:8px">Attente</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+        <p><a href="${adminUrl}" style="display:inline-block;padding:12px 20px;background:#B87B44;color:#1F2F3F;text-decoration:none;font-weight:700;border-radius:6px">Examiner la file admin</a></p>
+        <p style="font-size:12px;color:#888">Digest quotidien · désactiver avec VERIFICATION_DIGEST_ENABLED=false</p>
+        <p>— Q-Emplois</p>
+      `,
+      text: `${pending.length} vérification(s) en attente. ${adminUrl}`,
     });
   }
 
@@ -241,17 +310,24 @@ export class EmailService {
     taskerName: string,
     taskerEmail: string,
     adminUrl: string,
+    serviceTypes?: string[],
   ): Promise<void> {
+    const services =
+      serviceTypes && serviceTypes.length > 0
+        ? serviceTypes.join(', ')
+        : 'non précisés';
     await this.send({
       to: adminEmail,
-      subject: `Vérification en attente — ${taskerName}`,
+      subject: `🔔 ID à vérifier — ${taskerName}`,
       html: `
         <p>Bonjour,</p>
         <p><strong>${taskerName}</strong> (${taskerEmail}) a téléversé une pièce d'identité.</p>
-        <p><a href="${adminUrl}">Examiner la file de vérification</a></p>
+        <p>Services : ${services}</p>
+        <p><strong>Action requise :</strong> approuver pour débloquer les candidatures (crédits founding inutilisables avant).</p>
+        <p><a href="${adminUrl}" style="display:inline-block;padding:12px 20px;background:#B87B44;color:#1F2F3F;text-decoration:none;font-weight:700;border-radius:6px">Ouvrir l'admin</a></p>
         <p>— Q-Emplois</p>
       `,
-      text: `${taskerName} (${taskerEmail}) attend une vérification. ${adminUrl}`,
+      text: `${taskerName} (${taskerEmail}) — ID à vérifier. Services: ${services}. ${adminUrl}`,
     });
   }
 

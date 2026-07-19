@@ -31,6 +31,14 @@ export class AdminController {
     return this.adminService.listPendingVerifications(q);
   }
 
+  @Post('verifications/digest')
+  @ApiOperation({
+    summary: 'Envoyer maintenant le digest email/Telegram des vérifications en attente',
+  })
+  triggerDigest() {
+    return this.adminService.triggerVerificationDigest();
+  }
+
   @Get('providers')
   @ApiOperation({ summary: 'Rechercher des prestataires' })
   searchProviders(@Query('q') q?: string, @Query('status') status?: string) {

@@ -1,20 +1,22 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Cron, CronExpression } from '@nestjs/schedule';
+import { Cron } from '@nestjs/schedule';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuditService } from '../audit/audit.service';
 import { EmailService } from '../email/email.service';
 import { ConfigService } from '@nestjs/config';
+import { TelegramService } from './telegram.service';
 
 /**
  * Background jobs that keep verification state healthy:
  *
- * 1. Stale-pending alert: notify admin + tasker if a document has
- *    been waiting for review for more than 48 hours. Promises
- *    made in the UI ("sous 48 h") must be enforced or relaxed.
+ * 0. Morning digest (08:00 ET): all pending ID reviews → ADMIN_EMAIL
+ *    (+ optional TELEGRAM_ADMIN_CHAT_ID). Soft-launch critical path.
  *
- * 2. Verification expiry: any provider whose verificationExpiresAt
- *    has passed gets flipped back to isVerified=false. The tasker
- *    must re-upload a fresh document. Required for ongoing trust.
+ * 1. Stale-pending alert (10:00 ET): taskers + admin if waiting >48h.
+ *
+ * 2. Verification expiry (03:00 ET): flip isVerified=false after TTL.
+ *
+ * 3. Stale jobs (09:00 ET): clients with open jobs, 0 applications, 7d+.
  */
 @Injectable()
 export class VerificationJobsService {
@@ -25,7 +27,139 @@ export class VerificationJobsService {
     private readonly audit: AuditService,
     private readonly email: EmailService,
     private readonly config: ConfigService,
+    private readonly telegram: TelegramService,
   ) {}
+
+  private adminEmail(): string {
+    return this.config.get<string>('ADMIN_EMAIL') || 'admin@qemplois.ca';
+  }
+
+  private adminUrl(): string {
+    const base =
+      this.config.get<string>('FRONTEND_URL') ||
+      'https://www.quebec-emplois.ca';
+    return `${base.replace(/\/$/, '')}/admin`;
+  }
+
+  private digestEnabled(): boolean {
+    return this.config.get('VERIFICATION_DIGEST_ENABLED', 'true') !== 'false';
+  }
+
+  /**
+   * Load pending providers (ID uploaded, not verified).
+   * Excludes pure rejects without a new document (licenseDocumentUrl null).
+   */
+  async listPendingForDigest() {
+    const rows = await this.prisma.provider.findMany({
+      where: {
+        licenseDocumentUrl: { not: null },
+        isVerified: false,
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            email: true,
+            firstName: true,
+            lastName: true,
+          },
+        },
+      },
+      orderBy: { updatedAt: 'asc' },
+    });
+
+    const now = Date.now();
+    return rows.map((p) => {
+      const hoursWaiting = Math.max(
+        0,
+        Math.floor((now - p.updatedAt.getTime()) / (60 * 60 * 1000)),
+      );
+      const taskerName =
+        [p.user.firstName, p.user.lastName].filter(Boolean).join(' ') ||
+        p.user.email;
+      return {
+        providerId: p.id,
+        userId: p.user.id,
+        taskerName,
+        taskerEmail: p.user.email,
+        serviceTypes: p.serviceTypes ?? [],
+        pendingSince: p.updatedAt.toISOString(),
+        hoursWaiting,
+        firstName: p.user.firstName,
+      };
+    });
+  }
+
+  /**
+   * Send morning digest (email + optional Telegram). Callable from cron or admin API.
+   */
+  async sendPendingDigest(options?: {
+    force?: boolean;
+  }): Promise<{ sent: boolean; count: number; overdue: number }> {
+    if (!this.digestEnabled() && !options?.force) {
+      this.logger.log('Verification digest disabled (VERIFICATION_DIGEST_ENABLED=false).');
+      return { sent: false, count: 0, overdue: 0 };
+    }
+
+    const pending = await this.listPendingForDigest();
+    if (pending.length === 0) {
+      this.logger.log('No pending verifications — digest skipped.');
+      return { sent: false, count: 0, overdue: 0 };
+    }
+
+    const overdue = pending.filter((p) => p.hoursWaiting >= 48).length;
+    const adminEmail = this.adminEmail();
+    const adminUrl = this.adminUrl();
+
+    await this.email.sendAdminPendingDigest(
+      adminEmail,
+      pending.map((p) => ({
+        providerId: p.providerId,
+        taskerName: p.taskerName,
+        taskerEmail: p.taskerEmail,
+        serviceTypes: p.serviceTypes,
+        pendingSince: p.pendingSince,
+        hoursWaiting: p.hoursWaiting,
+      })),
+      adminUrl,
+    );
+
+    const chatId = this.config.get<string>('TELEGRAM_ADMIN_CHAT_ID');
+    if (chatId && this.telegram.isConfigured()) {
+      const lines = pending
+        .slice(0, 15)
+        .map(
+          (p) =>
+            `• <b>${p.taskerName}</b> (${p.hoursWaiting}h)${p.hoursWaiting >= 48 ? ' ⚠' : ''}`,
+        )
+        .join('\n');
+      const more =
+        pending.length > 15 ? `\n… +${pending.length - 15} autre(s)` : '';
+      await this.telegram.sendMessage(
+        chatId,
+        `🔔 <b>Digest vérifications</b>\n${pending.length} en attente` +
+          (overdue ? ` · ${overdue} >48h` : '') +
+          `\n\n${lines}${more}\n\n<a href="${adminUrl}">Ouvrir l'admin</a>`,
+      );
+    }
+
+    this.logger.log(
+      `Pending verification digest sent: count=${pending.length} overdue=${overdue} to=${adminEmail}`,
+    );
+    return { sent: true, count: pending.length, overdue };
+  }
+
+  /** Daily at 08:00 AM Eastern — full pending queue digest for soft-launch SLA. */
+  @Cron('0 8 * * *', { timeZone: 'America/Toronto' })
+  async handleMorningPendingDigest(): Promise<void> {
+    try {
+      await this.sendPendingDigest();
+    } catch (err) {
+      this.logger.error(
+        `Morning verification digest failed: ${(err as Error).message}`,
+      );
+    }
+  }
 
   /** Daily at 10:00 AM Eastern (matches Quebec business hours). */
   @Cron('0 10 * * *', { timeZone: 'America/Toronto' })
@@ -51,8 +185,8 @@ export class VerificationJobsService {
       `Found ${stale.length} stale pending verification(s) (>48h).`,
     );
 
-    const adminEmail =
-      this.config.get<string>('ADMIN_EMAIL') || 'admin@qemplois.ca';
+    const adminEmail = this.adminEmail();
+    const adminUrl = this.adminUrl();
 
     for (const provider of stale) {
       await this.audit.log({
@@ -86,6 +220,7 @@ export class VerificationJobsService {
           taskerEmail: p.user.email,
           pendingSince: p.updatedAt.toISOString(),
         })),
+        adminUrl,
       );
     } catch (err) {
       this.logger.error(

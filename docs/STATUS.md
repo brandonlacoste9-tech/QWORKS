@@ -71,7 +71,9 @@ Frontend fallback API is hard-coded in `frontend/src/services/api.ts` and `front
 6. [ ] Stripe webhook points at **current** Railway URL  
 7. [ ] CORS / `FRONTEND_URL` include `https://www.quebec-emplois.ca`  
 8. [ ] Support inbox monitored (`support@qemplois.ca` or Telegram)  
-9. [ ] Admin verification SLA &lt; 24h (blocks all applies until done)
+9. [ ] Admin verification SLA &lt; 24h (blocks all applies until done)  
+10. [ ] Set Railway `ADMIN_EMAIL` (+ optional `TELEGRAM_ADMIN_CHAT_ID`) for digests  
+11. [ ] Confirm Resend can deliver to `ADMIN_EMAIL`
 
 ## Docs map
 
