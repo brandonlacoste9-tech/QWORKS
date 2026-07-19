@@ -175,4 +175,4 @@ Update daily; 5 minutes is enough.
 3. If **jobs >> taskers** → open remaining founding slots hard; speed verify  
 4. Only then consider: paid ads, L'Atelier flag, commission experiments  
 
-Related: [SMOKE_E2E.md](./SMOKE_E2E.md) · [STATUS.md](./STATUS.md) · [PAYMENT_POLICY.md](./PAYMENT_POLICY.md)
+Related: [TRAFFIC_PLAYBOOK.md](./TRAFFIC_PLAYBOOK.md) · [SMOKE_E2E.md](./SMOKE_E2E.md) · [STATUS.md](./STATUS.md) · [PAYMENT_POLICY.md](./PAYMENT_POLICY.md)

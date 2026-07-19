@@ -82,10 +82,12 @@ Frontend fallback API is hard-coded in `frontend/src/services/api.ts` and `front
 | Doc | Use |
 |-----|-----|
 | **STATUS.md** (this file) | Live URLs + scope |
+| **[TRAFFIC_PLAYBOOK.md](./TRAFFIC_PLAYBOOK.md)** | Cold-start traffic: daily posts + tracking |
+| [FOUNDING_OPS_2WEEK.md](./FOUNDING_OPS_2WEEK.md) | Founding taskers + verify SLA |
 | `DEPLOY.md` | Env vars and deploy steps |
 | `PAYMENT_POLICY.md` | Credits + optional task pay |
 | `RAILWAY_RESTORE.md` | If API dies again |
-| `HANDOFF.md` | Historical — **stale URLs**; see STATUS |
+| `HANDOFF.md` | Historical — see STATUS |
 
 ## Architecture note
 
