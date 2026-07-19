@@ -1,68 +1,59 @@
 # Restore Railway backend (Q-Emplois)
 
-Your live frontend: **https://q-emplois.vercel.app**
+## Current production (2026-07)
 
-The API URL in git (`q-emplois-production.up.railway.app`) is **dead (404)**. Signup fails until a new backend is live.
+| Item | Value |
+|------|--------|
+| Frontend | **https://www.quebec-emplois.ca** |
+| API | **https://q-emplois-api-production-f1a6.up.railway.app/api/v1** |
+| Health | `GET …/api/v1/health` → `{"status":"ok","service":"q-emplois-api",…}` |
+
+If health fails or returns 404, recreate/redeploy the Railway service using the steps below, then update:
+
+1. Railway domain → new URL  
+2. `frontend/.env.production` → `VITE_API_URL`  
+3. Hard-coded fallbacks in `frontend/src/services/api.ts` and `frontend/src/utils/siteConfig.ts`  
+4. Vercel env `VITE_API_URL` + redeploy  
+5. Stripe webhook endpoint  
+6. Railway `CORS_ORIGIN` / `FRONTEND_URL` → `https://www.quebec-emplois.ca`
+
+---
 
 ## Step 1 — Railway dashboard
 
-1. Go to [railway.app](https://railway.app) → **New Project** → **Deploy from GitHub**
-2. Select repo: `brandonlacoste9-tech/q-emplois`
-3. Railway should detect the root **Dockerfile** (NestJS backend)
+1. Go to [railway.app](https://railway.app) → project for Q-Emplois  
+2. Redeploy from GitHub `brandonlacoste9-tech/q-emplois` (root Dockerfile / `backend/`)  
+3. Or **New Project** → Deploy from GitHub if the service was deleted
 
 ## Step 2 — Environment variables
 
-In the service → **Variables**, add:
-
 | Variable | Value |
 |----------|--------|
-| `DATABASE_URL` | Supabase → Project Settings → Database → **Session pooler** URI (host `aws-1-us-east-1.pooler.supabase.com`, port **5432**) |
-| `JWT_SECRET` | Random string, at least 32 characters |
-| `CORS_ORIGIN` | `https://q-emplois.vercel.app` |
-| `FRONTEND_URL` | `https://q-emplois.vercel.app` |
-| `PORT` | `3000` (usually auto-set by Railway) |
+| `DATABASE_URL` | Supabase session pooler URI (port **5432**) |
+| `JWT_SECRET` | Random string, ≥ 32 characters |
+| `CORS_ORIGIN` | `https://www.quebec-emplois.ca` |
+| `FRONTEND_URL` | `https://www.quebec-emplois.ca` |
+| `PORT` | `3000` (usually auto-set) |
+| Optional | `STRIPE_*`, `RESEND_API_KEY`, `EMAIL_FROM`, Telegram bot vars, demo job cron vars |
 
-**Do not set `REDIS_URL`** unless you have Redis — the app uses in-memory fallback.
-
-Remove any `REDIS_URL` pointing at `localhost`.
+**Do not set `REDIS_URL`** to localhost — app uses in-memory fallback if unset.
 
 ## Step 3 — Domain
 
-**Settings → Networking → Generate domain** → copy URL, e.g. `https://q-emplois-api-production.up.railway.app`
+**Settings → Networking → Generate domain** → e.g. `https://q-emplois-api-production-XXXX.up.railway.app`
 
 ## Step 4 — Verify
 
-Open: `https://YOUR-URL.up.railway.app/api/v1/health`
+```
+GET https://YOUR-URL.up.railway.app/api/v1/health
+```
 
 Expected: `{"status":"ok","service":"q-emplois-api",...}`
 
-Deploy logs should show: `Connected to PostgreSQL`
+Logs should show: `Connected to PostgreSQL`
 
-## Step 5 — Wire Vercel (automated)
+## Step 5 — Point frontend + Stripe
 
-From repo root in PowerShell:
-
-```powershell
-.\scripts\setup-production.ps1 -RailwayUrl "https://YOUR-URL.up.railway.app"
-```
-
-This updates `frontend/.env.production`, sets Vercel `VITE_API_URL`, and redeploys.
-
-## Step 6 — Run migrations (once)
-
-```powershell
-cd backend
-$env:DATABASE_URL = "your-supabase-session-pooler-uri"
-npx prisma migrate deploy
-npm run seed
-```
-
-## Railway CLI (optional)
-
-If CLI shows no output, re-login:
-
-```powershell
-railway login
-railway link
-railway variables set CORS_ORIGIN=https://q-emplois.vercel.app
-```
+- Vercel: `VITE_API_URL=https://YOUR-URL.up.railway.app/api/v1`  
+- Stripe webhook: `https://YOUR-URL.up.railway.app/api/v1/payments/webhook`  
+- See also `docs/STATUS.md` and `docs/DEPLOY.md`

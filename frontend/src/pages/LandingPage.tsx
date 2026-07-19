@@ -11,6 +11,21 @@ import { buildClientBookingHref, formatPriceGuideShort } from "../utils/booking"
 const T = {
   fr: {
     nav: { find: "Trouver de l'aide", taskers: "Voir les travailleurs", become: "Offrir mes services", login: "Connexion", signup: "S'inscrire" },
+    beta: {
+      strip: "Bêta ouverte — Montréal & Rive-Sud · Publier une tâche est gratuit",
+      founding: "50 premiers travailleurs : 60 crédits gratuits + 20 % à vie",
+      joinTasker: "Devenir travailleur",
+      postTask: "Publier une tâche",
+    },
+    paths: {
+      title: "Deux chemins, un marché local",
+      clientTitle: "J'ai besoin d'aide",
+      clientDesc: "Publiez en 3 minutes. Des travailleurs postulent — vous choisissez. Paiement en ligne optionnel (Stripe) ou direct.",
+      clientCta: "Publier gratuitement",
+      taskerTitle: "Je veux travailler",
+      taskerDesc: "Postulez aux jobs près de chez vous. 1 crédit = 1 candidature (remboursé si non retenu). Offre Founding Tasker limitée.",
+      taskerCta: "Offrir mes services",
+    },
     hero: {
       badge: "Le marché de services local du Québec",
       h1: "De l'aide près de chez vous, en quelques clics.",
@@ -72,9 +87,10 @@ const T = {
         "Crédits simples pour postuler — remboursés si non retenu",
         "Travaillez quand vous voulez, où vous voulez",
         "Pas de licence requise pour la plupart des jobs",
+        "Founding Tasker : 60 crédits gratuits (50 places) + 20 % à vie",
       ],
       cta: "Commencer à gagner",
-      sub2: "Inscription gratuite — commencez aujourd'hui",
+      sub2: "Inscription gratuite — offres Founding limitées",
     },
     foot: {
       tag: "Le marché de services local du Québec.",
@@ -84,6 +100,21 @@ const T = {
   },
   en: {
     nav: { find: "Find help", taskers: "Browse taskers", become: "Offer my services", login: "Log in", signup: "Sign up" },
+    beta: {
+      strip: "Open beta — Montreal & South Shore · Posting a task is free",
+      founding: "First 50 taskers: 60 free credits + 20% lifetime off packs",
+      joinTasker: "Become a tasker",
+      postTask: "Post a task",
+    },
+    paths: {
+      title: "Two paths, one local marketplace",
+      clientTitle: "I need help",
+      clientDesc: "Post in 3 minutes. Taskers apply — you choose. Optional online pay (Stripe) or pay them directly.",
+      clientCta: "Post for free",
+      taskerTitle: "I want to work",
+      taskerDesc: "Apply to jobs near you. 1 credit = 1 application (refunded if not selected). Limited Founding Tasker offer.",
+      taskerCta: "Offer my services",
+    },
     hero: {
       badge: "Québec's local services marketplace",
       h1: "Trusted local help, just a few clicks away.",
@@ -145,9 +176,10 @@ const T = {
         "Simple credits to apply — refunded if not selected",
         "Work when you want, where you want",
         "No license required for most jobs",
+        "Founding Tasker: 60 free credits (50 spots) + 20% lifetime off",
       ],
       cta: "Start earning",
-      sub2: "Free signup — start today",
+      sub2: "Free signup — Founding offer limited",
     },
     foot: {
       tag: "Québec's local services marketplace.",
@@ -470,6 +502,27 @@ export function LandingPage() {
       {/* spacer for fixed nav */}
       <div style={{ height: 60 }} />
 
+      {/* ======== BETA STRIP ======== */}
+      <div
+        className="body-f"
+        style={{
+          background: "linear-gradient(90deg, rgba(184,123,68,0.22), rgba(184,123,68,0.08), rgba(184,123,68,0.22))",
+          borderBottom: "1px dashed rgba(217,179,140,0.28)",
+          padding: "10px 16px",
+          textAlign: "center",
+          fontSize: 13,
+          color: "#E8CDB0",
+          lineHeight: 1.45,
+        }}
+      >
+        <span style={{ marginRight: 8 }}>⚜</span>
+        <strong style={{ color: "#F5EDE3" }}>{t.beta.strip}</strong>
+        <span className="muted2" style={{ margin: "0 10px" }}>·</span>
+        <Link to="/recrute" style={{ color: "#B87B44", fontWeight: 700 }}>
+          {t.beta.founding}
+        </Link>
+      </div>
+
       {/* ======== HERO ======== */}
       <section
         className="leather hero-fit"
@@ -544,6 +597,36 @@ export function LandingPage() {
               {t.hero.publishFree}
             </Link>
           </p>
+          <p className="body-f muted2" style={{ marginTop: 8, fontSize: 12, letterSpacing: "0.04em" }}>
+            {t.hero.city}
+          </p>
+        </div>
+      </section>
+
+      {/* === DUAL PATH (client / tasker) === */}
+      <section className="leather" style={{ padding: "48px 24px 24px" }}>
+        <div style={{ maxWidth: 900, margin: "0 auto" }}>
+          <h2 className="serif cream-hi" style={{ textAlign: "center", fontSize: "clamp(1.4rem, 3vw, 1.9rem)", fontWeight: 700, marginBottom: 24 }}>
+            {t.paths.title}
+          </h2>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 18 }}>
+            <div className="stitch-box" style={{ padding: 24, background: "rgba(21,35,50,0.65)", display: "flex", flexDirection: "column", gap: 12 }}>
+              <span style={{ fontSize: 28 }}>🏠</span>
+              <h3 className="serif cream-hi" style={{ fontSize: 18, fontWeight: 800, margin: 0 }}>{t.paths.clientTitle}</h3>
+              <p className="body-f muted2" style={{ fontSize: 14, lineHeight: 1.55, flex: 1, margin: 0 }}>{t.paths.clientDesc}</p>
+              <Link to="/book" className="gold-btn" style={{ padding: "12px 18px", fontSize: 14, textAlign: "center", textDecoration: "none" }}>
+                {t.paths.clientCta}
+              </Link>
+            </div>
+            <div className="stitch-box" style={{ padding: 24, background: "rgba(184,123,68,0.12)", display: "flex", flexDirection: "column", gap: 12, borderColor: "rgba(184,123,68,0.45)" }}>
+              <span style={{ fontSize: 28 }}>💪</span>
+              <h3 className="serif cream-hi" style={{ fontSize: 18, fontWeight: 800, margin: 0 }}>{t.paths.taskerTitle}</h3>
+              <p className="body-f muted2" style={{ fontSize: 14, lineHeight: 1.55, flex: 1, margin: 0 }}>{t.paths.taskerDesc}</p>
+              <Link to="/recrute" className="gold-btn" style={{ padding: "12px 18px", fontSize: 14, textAlign: "center", textDecoration: "none" }}>
+                {t.paths.taskerCta}
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
 

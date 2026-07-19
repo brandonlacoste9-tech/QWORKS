@@ -86,7 +86,7 @@ export class TelegramService {
       scheduledDate?: Date | null;
     },
   ): Promise<boolean> {
-    const frontendUrl = this.configService.get<string>('FRONTEND_URL') ?? 'https://q-emplois.vercel.app';
+    const frontendUrl = this.configService.get<string>('FRONTEND_URL') ?? 'https://www.quebec-emplois.ca';
     const price = Number(job.estimatedPrice ?? 0);
     const city = job.city ?? 'Non spécifié';
     const date = job.scheduledDate
@@ -186,7 +186,7 @@ export class TelegramService {
 
     // /start without param
     if (text === '/start') {
-      const frontendUrl = this.configService.get<string>('FRONTEND_URL') ?? 'https://q-emplois.vercel.app';
+      const frontendUrl = this.configService.get<string>('FRONTEND_URL') ?? 'https://www.quebec-emplois.ca';
       await this.sendMessage(
         chatId,
         `👋 <b>Bienvenue sur Q-Emplois !</b>\n\n` +
@@ -403,7 +403,7 @@ export class TelegramService {
 
     await this.answerCallbackQuery(callbackQueryId, '✅ Candidature envoyée !');
 
-    const frontendUrl = this.configService.get<string>('FRONTEND_URL') ?? 'https://q-emplois.vercel.app';
+    const frontendUrl = this.configService.get<string>('FRONTEND_URL') ?? 'https://www.quebec-emplois.ca';
     await this.sendMessage(
       chatId,
       `✅ <b>Candidature envoyée !</b>\n\n` +

@@ -9,7 +9,7 @@ param(
 $ErrorActionPreference = "Stop"
 $RailwayUrl = $RailwayUrl.TrimEnd('/')
 $ApiUrl = "$RailwayUrl/api/v1"
-$FrontendUrl = "https://q-emplois.vercel.app"
+$FrontendUrl = "https://www.quebec-emplois.ca"
 
 Write-Host "Testing health: $ApiUrl/health"
 try {

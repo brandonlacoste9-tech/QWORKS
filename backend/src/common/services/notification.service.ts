@@ -39,7 +39,7 @@ export class NotificationService {
 
     if (!provider) return;
 
-    const frontendUrl = process.env.FRONTEND_URL ?? 'https://q-emplois.vercel.app';
+    const frontendUrl = process.env.FRONTEND_URL ?? 'https://www.quebec-emplois.ca';
     const taskUrl = `${frontendUrl}/jobs/${job.id}`;
     
     // 1. Send Email Notification
@@ -81,7 +81,7 @@ export class NotificationService {
 
     if (!user) return;
 
-    const frontendUrl = process.env.FRONTEND_URL ?? 'https://q-emplois.vercel.app';
+    const frontendUrl = process.env.FRONTEND_URL ?? 'https://www.quebec-emplois.ca';
     const chatUrl = `${frontendUrl}/messages`;
 
     // 1. Send Email Notification

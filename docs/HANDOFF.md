@@ -1,77 +1,57 @@
-# Q-Emplois — Handoff Summary
+# Q-Emplois — Handoff
 
-_Last updated: June 18, 2026_
+_Last updated: 2026-07-19_
 
-## Project Overview
-**Q-Emplois** is a Québec-focused local jobs marketplace (small jobs, delivery, neighbor-to-neighbor services). It connects clients who need work done with local verified workers ("pros"). French-default with an EN toggle.
+> **Live URLs and checklist:** see **[STATUS.md](./STATUS.md)** first. This file is a short orientation; STATUS is authoritative for production.
 
-- **Repo:** `brandonlacoste9-tech/q-emplois` (private), branch `main`
-- **Local path:** `/home/user/workspace/q-emplois` (frontend at `/frontend`)
-- **Stack:** React + Vite + Tailwind + react-router-dom (frontend); NestJS (backend); Supabase (DB); deploys to Vercel (frontend, auto on push) + Railway (backend: `https://q-emplois-production.up.railway.app/api/v1`)
-- **Build:** `cd frontend && npm run build` (currently passing, ~1846 modules; tsc is strict — remove unused imports)
+## Overview
 
-## Design System ("cuir québécois" navy leather theme)
-- **Colors:** bg `#1F2F3F`, deep `#152332`, cream `#D9B38C`, cream-hi `#E8CDB0`, gold `#B87B44`, muted `#C4A882`
-- **Fonts:** Playfair Display (display) + Lora (body)
-- **Tokens:** defined in `frontend/src/styles/theme.css` (classes: `.leather`, `.stitch-box`, `.gold-btn`, `.q-field`, `.nav-link`, `.nav-hide-sm`, `.nav-show-sm`, `.hero-fit`, `.search-bar`, etc.)
+**Q-Emplois** (Québec Emplois) is a Québec-first local jobs marketplace: clients post small jobs; taskers apply with credits; clients choose; payment is optional Stripe or direct.
 
-## What Was Done (this session)
+- **Repo:** `brandonlacoste9-tech/q-emplois` · `main`  
+- **Stack:** React 19 + Vite + RR7 (frontend); NestJS + Prisma + Postgres (backend)  
+- **Design:** Cuir Québécois — navy / gold / cream (`DESIGN.md`)  
+- **FR-first** with EN toggle  
 
-### Strategic direction
-- Decided to launch as a **single-wedge, jobs-only** product (not the original two-sided marketplace). Removed the "Q-business / trades" wedge across homepage, portal, and routes (deleted `/q-business` route). Kept the worker signup flow.
-- Wrote a full user journey map → `docs/USER_JOURNEY.md` (Discover → Register → Dashboard → accept job → escrow → review loop, with flagged gaps).
+## Production (do not use stale hosts)
 
-### Theming (navy brand alignment)
-- Re-themed all pages to the navy leather brand and aligned copy.
-- Fully rewrote `Dashboard.tsx`, `Jobs.tsx`, `Profile.tsx` (navy theme, general local-job service types: déménagement, ménage, montage meubles, nettoyage, jardinage, livraison, coursier, autre).
-- Built a new logged-in navbar: `frontend/src/components/AppNav.tsx` (navy, with mobile hamburger menu).
-- Replaced the old gray AppShell/Navbar in `App.tsx`.
+| | URL |
+|--|-----|
+| Site | https://www.quebec-emplois.ca |
+| API | https://q-emplois-api-production-f1a6.up.railway.app/api/v1 |
 
-### Hero image
-- Integrated the final AI-generated Québec hero image (`frontend/public/hero/hero-quebec.jpg`) — golden-hour valley, diverse workers, baked-in "Q-Emplois" wordmark + French tagline "Le marché du travail local pour le Québec."
-- Removed duplicate HTML wordmark/headline to avoid double-logo; kept search bar layered on top with a gradient overlay.
-- Locked hero to 16:9 aspect ratio so the full image shows (no top cropping).
+## Soft-launch scope
 
-### Mobile responsiveness (homepage)
-- Homepage nav → hamburger menu + stacked dropdown on phones (≤640px).
-- Hero reframed (cover/center crop) so it fits phone screens without clipping.
-- Fixed form fields getting cut off → added `box-sizing: border-box` to `.q-field` (fixes inputs across Profile, Jobs, and search).
-- Fixed "Trouver un pro" button being clipped → removed overflow clip, made search bar stack vertically with a full-width button on mobile.
-- **Verified:** Dashboard/Jobs/Profile already use `auto-fit minmax()` grids (collapse to single columns on phones) and AppNav already has a mobile menu — so the whole app is now mobile-ready.
+- **In:** jobs, credits, messaging, verification, admin, founding taskers, optional Stripe  
+- **Out:** L'Atelier escrow UI (flag off), WhatsApp  
 
-### Commits (all pushed to `main`)
-| Commit | What |
-|---|---|
-| `2c5407a` | Align all pages to navy brand |
-| `1c73a8c` | Hide trades wedge, focus on jobs |
-| `eed1271` | Theme logged-in pages, jobs-focused |
-| `c306293` | Add Québec hero image |
-| `e215caf` | Remove redundant portal card, size hero |
-| `922ca6f` | Shrink hero, show people |
-| `0b6e7fc` | Lock hero to 16:9 (no crop) |
-| `e83c459` | Mobile-responsive homepage (hamburger, hero) |
-| `eaba8a5` | Fix form fields cut off on mobile |
-| `3718312` | Fix "Trouver un pro" button clipped on mobile |
+## Key paths
 
-**Current HEAD on remote:** `3718312`
+| Path | Role |
+|------|------|
+| `/` | Landing (beta strip, dual path CTAs) |
+| `/book`, `/aide` | Client post / help funnel |
+| `/recrute` | Tasker recruitment + share copy |
+| `/register`, `/register/client`, `/register/tasker` | Signup |
+| `/jobs`, `/jobs/:id`, `/messages`, `/credits` | Authenticated product |
+| `/admin` | Admin |
 
-## Routes (App.tsx)
-`/`, `/portal`, `/q-jobs`, `/latelier`, `/login`, `/register`, `/dashboard` (protected), `/jobs` (protected), `/contrats` (=Jobs, protected), `/pro` (=Register), `/profile` (protected). **Removed:** `/q-business`.
+## Config
 
-## Backend Status
-NestJS backend is **built** (auth, jobs with accept/decline/start/complete, bookings state-machine pending→confirmed→in_progress→completed, payments/escrow + Stripe + milestones, credits, chat, providers, dashboard; roles: client/provider/admin) but **NOT confirmed live/responding**. ⚠️ First task for next person: verify the Railway backend is actually up.
+- Public domain helper: `frontend/src/utils/siteConfig.ts`  
+- API client: `frontend/src/services/api.ts`  
+- Feature flag L'Atelier: `frontend/src/utils/featureFlags.ts`  
+- Payments: `docs/PAYMENT_POLICY.md`  
+- Deploy: `docs/DEPLOY.md`  
 
-- **Supabase:** ref `masefoylqhqfijszezla`, 16 tables, RLS enabled. (Connection creds are in the team's secrets / `.env.production` — not committed here.)
+## What's next (ops, not code)
 
-## What's Left To Do (priority order)
-1. **Confirm Railway backend is live** — test the API endpoint before building anything that depends on it.
-2. **Client job-posting UI** — there's currently no interface for clients to *post* a job (the journey map flags this as the biggest functional gap).
-3. **Stripe payment/escrow wiring** — backend logic exists; needs frontend integration + Stripe keys configured.
-4. **Seed data** — populate sample jobs/providers so the marketplace doesn't look empty at launch.
-5. **Address 23 Dependabot vulnerabilities** (8 high, 11 moderate, 4 low) flagged on GitHub.
-6. **Optional polish:** small sparkle artifact in bottom-right of the hero image (regenerate a clean version if desired); hero wordmark/tagline are baked into the image so they stay French even on EN toggle (acceptable for MVP, noted).
+1. Smoke E2E on production  
+2. Seed real jobs in MTL / Rive-Sud  
+3. Recruit founding 50 via `/recrute`  
+4. Confirm Stripe webhook + CORS for custom domain  
+5. Keep L'Atelier off until job loop is proven  
 
-## Useful Dev Notes
-- **Push pattern:** `git -c user.name="brandonlacoste9-tech" -c user.email="marifaf77@gmail.com" commit ...` then push with GitHub credentials.
-- **Mobile testing:** localhost isn't reachable from the screenshot tool; use Playwright against `vite preview` (viewport 390×844 for phone). Mock `/api/v1/**` + set a localStorage token to test protected pages.
-- Responsive helpers (`.nav-hide-sm`, `.nav-show-sm`, `.hero-fit`, `.search-bar`) live in `theme.css` under the `@media (max-width: 640px)` block — reuse them for any future mobile work.
+## Historical note
+
+Older handoff (June 2026) claimed missing PostJob UI and dead Railway — **superseded**. Phases A–D are on `main` (through `3b83e15` and later soft-launch polish).

@@ -32,7 +32,7 @@ await gql(
       serviceId: SERVICE_ID,
       variables: {
         CORS_ORIGIN,
-        FRONTEND_URL: 'https://q-emplois.vercel.app',
+        FRONTEND_URL: 'https://www.quebec-emplois.ca',
       },
     },
   },

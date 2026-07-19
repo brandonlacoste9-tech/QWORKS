@@ -7,17 +7,18 @@ type Lang = 'fr' | 'en';
 const T = {
   fr: {
     title: 'Rejoindre Québec emplois',
-    sub: 'Comment voulez-vous utiliser la plateforme ?',
+    sub: 'Bêta Montréal & Rive-Sud — comment voulez-vous utiliser la plateforme ?',
+    founding: '50 premiers travailleurs : 60 crédits gratuits + 20 % à vie',
     client: {
       emoji: '🏠',
       title: "J'ai besoin d'aide",
-      desc: 'Publiez une tâche — déménagement, ménage, montage — et trouvez un pro local.',
+      desc: 'Publiez une tâche — déménagement, ménage, montage — et choisissez parmi les candidats. Gratuit en bêta.',
       cta: 'Créer un compte client',
     },
     tasker: {
       emoji: '💪',
       title: 'Je veux gagner de l\'argent',
-      desc: 'Inscrivez-vous comme travailleur, parcourez les jobs et acceptez celles près de chez vous.',
+      desc: 'Postulez aux jobs près de chez vous. Offre Founding Tasker limitée (crédits gratuits).',
       cta: 'Créer un compte travailleur',
     },
     haveAccount: 'Déjà un compte ?',
@@ -25,17 +26,18 @@ const T = {
   },
   en: {
     title: 'Join Québec emplois',
-    sub: 'How do you want to use the platform?',
+    sub: 'Montreal & South Shore beta — how do you want to use the platform?',
+    founding: 'First 50 taskers: 60 free credits + 20% lifetime off',
     client: {
       emoji: '🏠',
       title: 'I need help',
-      desc: 'Post a task — moving, cleaning, assembly — and find a local pro.',
+      desc: 'Post a task — moving, cleaning, assembly — and pick from applicants. Free in beta.',
       cta: 'Create a client account',
     },
     tasker: {
       emoji: '💪',
       title: 'I want to earn money',
-      desc: 'Sign up as a tasker, browse jobs and accept ones near you.',
+      desc: 'Apply to jobs near you. Limited Founding Tasker offer (free credits).',
       cta: 'Create a tasker account',
     },
     haveAccount: 'Already have an account?',
@@ -128,6 +130,21 @@ export function RegisterChoose() {
           </h1>
           <p className="body-f muted2" style={{ fontSize: 14, marginTop: 8 }}>
             {t.sub}
+          </p>
+          <p
+            className="body-f"
+            style={{
+              fontSize: 13,
+              marginTop: 14,
+              padding: '8px 14px',
+              display: 'inline-block',
+              borderRadius: 8,
+              border: '1px dashed rgba(184,123,68,0.45)',
+              background: 'rgba(184,123,68,0.1)',
+              color: '#E8CDB0',
+            }}
+          >
+            🏆 {t.founding}
           </p>
         </div>
 

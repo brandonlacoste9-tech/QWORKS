@@ -4,8 +4,74 @@ import { SiteNav } from '../components/SiteNav';
 import { SiteFooter } from '../components/SiteFooter';
 import { Copy, MapPin, Shield, Sparkles, Users } from 'lucide-react';
 import { colors, gold } from '../styles/design-tokens';
+import { sitePath } from '../utils/siteConfig';
 
 type Lang = 'fr' | 'en';
+
+function sharePosts(lang: Lang) {
+  const aide = sitePath('/aide');
+  const client = sitePath('/register/client');
+  if (lang === 'fr') {
+    return {
+      fb: `🏠 BESOIN D'AIDE? Québec Emplois — bêta gratuite (Montréal / Rive-Sud)
+
+Ménage, déménagement, montage de meubles, jardinage… Publiez votre tâche en 3 minutes.
+
+✅ Des travailleurs locaux postulent — VOUS choisissez
+✅ Votre adresse reste privée jusqu'au démarrage
+✅ Fourchettes de prix affichées d'avance
+✅ Gratuit en bêta (pas de frais plateforme)
+
+👉 ${aide}
+
+#Montréal #Aide #Services #Québec`,
+      kijiji: `Titre: Trouvez de l'aide locale — ménage, déménagement, montage (GRATUIT bêta)
+
+Description:
+Québec Emplois est un marché de services québécois en bêta à Montréal et sur la Rive-Sud.
+
+Pour les clients:
+1. Créez un compte gratuit
+2. Publiez votre tâche (description, date, budget)
+3. Recevez des candidatures de travailleurs locaux vérifiés
+4. Choisissez celui qui vous convient
+5. Coordonnez et faites le travail
+
+Avantages:
+- Vous choisissez le travailleur (pas le premier qui accepte)
+- Vie privée: adresse masquée jusqu'au démarrage
+- Fourchettes de prix suggérées
+- Conforme Loi 25 (Québec)
+
+Inscription gratuite: ${client}
+Publier une tâche: ${aide}`,
+      court: `🏠 Besoin d'aide à la maison? Ménage, déménagement, montage — Q-Emplois (bêta gratuite MTL/Rive-Sud). Vous choisissez votre travailleur. ${aide}`,
+      need: `Je cherche de l'aide pour [ménage / montage / déménagement] à [quartier]. Quelqu'un a déjà utilisé Q-Emplois? C'est gratuit en bêta et tu choisis ton travailleur 👉 ${aide}`,
+    };
+  }
+  return {
+    fb: `🏠 NEED HELP? Q-Emplois — free beta (Montreal / South Shore)
+
+Cleaning, moving, furniture assembly, yard work… Post your task in 3 minutes.
+
+✅ Local taskers apply — YOU choose
+✅ Address private until work starts
+✅ Price ranges shown upfront
+✅ Free in beta
+
+👉 ${aide}`,
+    kijiji: `Title: Find local help — cleaning, moving, assembly (FREE beta)
+
+Q-Emplois is a Québec services marketplace in beta.
+
+For clients: post a task, receive applications, pick your tasker, coordinate and done.
+
+Free signup: ${client}
+Post a task: ${aide}`,
+    court: `🏠 Home help needed? Q-Emplois free beta MTL/South Shore. You pick your tasker. ${aide}`,
+    need: `Looking for help with [cleaning / assembly / moving] in [area]. Anyone tried Q-Emplois? Free beta, you choose your tasker 👉 ${aide}`,
+  };
+}
 
 const T = {
   fr: {
@@ -41,42 +107,6 @@ const T = {
     betaNote: 'Bêta gratuite : aucun frais plateforme pour publier une tâche. Après avoir choisi votre travailleur, vous pouvez payer en ligne (Stripe) depuis la fiche de la tâche ou vous arranger directement (virement, comptant, etc.).',
     shareTitle: 'Textes prêts à publier',
     shareHint: 'Partagez dans vos groupes Facebook, Nextdoor ou Kijiji pour trouver des voisins qui ont besoin d\'aide — ou postez vous-même si vous cherchez.',
-    posts: {
-      fb: `🏠 BESOIN D'AIDE? Québec Emplois — bêta gratuite (Montréal / Rive-Sud)
-
-Ménage, déménagement, montage de meubles, jardinage… Publiez votre tâche en 3 minutes.
-
-✅ Des travailleurs locaux postulent — VOUS choisissez
-✅ Votre adresse reste privée jusqu'au démarrage
-✅ Fourchettes de prix affichées d'avance
-✅ Gratuit en bêta (pas de frais plateforme)
-
-👉 https://q-emplois.vercel.app/aide
-
-#Montréal #Aide #Services #Québec`,
-      kijiji: `Titre: Trouvez de l'aide locale — ménage, déménagement, montage (GRATUIT bêta)
-
-Description:
-Québec Emplois est un marché de services québécois en bêta à Montréal et sur la Rive-Sud.
-
-Pour les clients:
-1. Créez un compte gratuit
-2. Publiez votre tâche (description, date, budget)
-3. Recevez des candidatures de travailleurs locaux vérifiés
-4. Choisissez celui qui vous convient
-5. Coordonnez et faites le travail
-
-Avantages:
-- Vous choisissez le travailleur (pas le premier qui accepte)
-- Vie privée: adresse masquée jusqu'au démarrage
-- Fourchettes de prix suggérées
-- Conforme Loi 25 (Québec)
-
-Inscription gratuite: https://q-emplois.vercel.app/register/client
-Publier une tâche: https://q-emplois.vercel.app/aide`,
-      court: `🏠 Besoin d'aide à la maison? Ménage, déménagement, montage — Q-Emplois (bêta gratuite MTL/Rive-Sud). Vous choisissez votre travailleur. https://q-emplois.vercel.app/aide`,
-      need: `Je cherche de l'aide pour [ménage / montage / déménagement] à [quartier]. Quelqu'un a déjà utilisé Q-Emplois? C'est gratuit en bêta et tu choisis ton travailleur 👉 https://q-emplois.vercel.app/aide`,
-    },
     copied: 'Copié!',
     taskerLink: 'Vous voulez travailler? Devenez travailleur',
   },
@@ -113,27 +143,6 @@ Publier une tâche: https://q-emplois.vercel.app/aide`,
     betaNote: 'Free beta: no platform fee to post. After you pick your tasker, pay online (Stripe) from the job page or arrange payment directly (e-transfer, cash, etc.).',
     shareTitle: 'Ready-to-post copy',
     shareHint: 'Share in Facebook groups, Nextdoor or Kijiji.',
-    posts: {
-      fb: `🏠 NEED HELP? Q-Emplois — free beta (Montreal / South Shore)
-
-Cleaning, moving, furniture assembly, yard work… Post your task in 3 minutes.
-
-✅ Local taskers apply — YOU choose
-✅ Address private until work starts
-✅ Price ranges shown upfront
-✅ Free in beta
-
-👉 https://q-emplois.vercel.app/aide`,
-      kijiji: `Title: Find local help — cleaning, moving, assembly (FREE beta)
-
-Q-Emplois is a Québec services marketplace in beta.
-
-For clients: post a task, receive applications, pick your tasker, coordinate and done.
-
-Free signup: https://q-emplois.vercel.app/register/client`,
-      court: `🏠 Home help needed? Q-Emplois free beta MTL/South Shore. You pick your tasker. https://q-emplois.vercel.app/aide`,
-      need: `Looking for help with [cleaning / assembly / moving] in [area]. Anyone tried Q-Emplois? Free beta, you choose your tasker 👉 https://q-emplois.vercel.app/aide`,
-    },
     copied: 'Copied!',
     taskerLink: 'Want to work? Become a tasker',
   },
@@ -162,6 +171,7 @@ function CopyBlock({ label, text, copiedLabel }: { label: string; text: string; 
 export function AidePage() {
   const [lang, setLang] = useState<Lang>('fr');
   const t = T[lang];
+  const posts = sharePosts(lang);
 
   return (
     <div className="leather" style={{ minHeight: '100vh', color: colors.cream }}>
@@ -238,10 +248,10 @@ export function AidePage() {
           <Users className="w-6 h-6" style={{ color: gold }} /> {t.shareTitle}
         </h2>
         <p className="body-f muted2" style={{ fontSize: 14, marginBottom: 16 }}>{t.shareHint}</p>
-        <CopyBlock label="Facebook / groupes de quartier" text={t.posts.fb} copiedLabel={t.copied} />
-        <CopyBlock label="Kijiji" text={t.posts.kijiji} copiedLabel={t.copied} />
-        <CopyBlock label="Message court" text={t.posts.court} copiedLabel={t.copied} />
-        <CopyBlock label="Post « je cherche de l'aide »" text={t.posts.need} copiedLabel={t.copied} />
+        <CopyBlock label="Facebook / groupes de quartier" text={posts.fb} copiedLabel={t.copied} />
+        <CopyBlock label="Kijiji" text={posts.kijiji} copiedLabel={t.copied} />
+        <CopyBlock label="Message court" text={posts.court} copiedLabel={t.copied} />
+        <CopyBlock label="Post « je cherche de l'aide »" text={posts.need} copiedLabel={t.copied} />
       </section>
 
       <section style={{ maxWidth: 640, margin: '0 auto 64px', padding: '0 24px', textAlign: 'center' }}>

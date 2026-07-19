@@ -1,12 +1,19 @@
 # Production deploy checklist
 
+## Live production (verify first)
+
+See **[STATUS.md](./STATUS.md)**. As of 2026-07:
+
+- Frontend: `https://www.quebec-emplois.ca`
+- API: `https://q-emplois-api-production-f1a6.up.railway.app/api/v1`
+
 ## Railway (backend)
 
 1. Open the **active** Railway service → **Variables**:
    - `DATABASE_URL` — Supabase **session pooler** (`aws-1-us-east-1.pooler.supabase.com:5432`)
    - `JWT_SECRET` — min 32 chars
-   - `CORS_ORIGIN` — Vercel frontend URL
-   - `FRONTEND_URL` — same Vercel URL
+   - `CORS_ORIGIN` — `https://www.quebec-emplois.ca` (and preview URLs if needed)
+   - `FRONTEND_URL` — `https://www.quebec-emplois.ca`
    - `RESEND_API_KEY` — transactional email (password reset, application alerts)
    - `EMAIL_FROM` — e.g. `Q-Emplois <noreply@qemplois.ca>`
    - `MIGRATE_DATABASE_URL` — Supabase **session pooler** `:5432` (for auto-migrate on deploy)
@@ -33,6 +40,16 @@
 ## Vercel (frontend)
 
 Set `VITE_API_URL=https://YOUR-RAILWAY-URL.up.railway.app/api/v1` in Vercel env (or update `frontend/.env.production` and redeploy).
+
+Current production value:
+
+```
+VITE_API_URL=https://q-emplois-api-production-f1a6.up.railway.app/api/v1
+```
+
+Also keep hard-coded fallbacks in `frontend/src/services/api.ts` and `frontend/src/utils/siteConfig.ts` in sync if the Railway host changes.
+
+Domain: attach **www.quebec-emplois.ca** (and apex redirect if desired).
 
 ## Stripe webhook
 

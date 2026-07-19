@@ -108,11 +108,13 @@ See `BETA_LAUNCH_STRATEGY.md` for full details.
 - **Validation:** class-validator
 
 ### Infrastructure
-- **Frontend Hosting:** Vercel (free tier)
-- **Backend Hosting:** Railway (free tier)
-- **Database:** Supabase (free tier)
-- **Email:** Resend (free tier)
-- **Redis:** Upstash (free tier)
+- **Frontend Hosting:** Vercel → **https://www.quebec-emplois.ca**
+- **Backend Hosting:** Railway → **https://q-emplois-api-production-f1a6.up.railway.app**
+- **Database:** Supabase (Postgres + Prisma)
+- **Email:** Resend
+- **Redis:** optional (in-memory fallback if unset)
+
+**Live status & soft-launch checklist:** [`docs/STATUS.md`](docs/STATUS.md)
 
 ---
 

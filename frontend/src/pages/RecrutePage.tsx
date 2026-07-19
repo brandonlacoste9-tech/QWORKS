@@ -4,8 +4,71 @@ import { SiteNav } from '../components/SiteNav';
 import { SiteFooter } from '../components/SiteFooter';
 import { Copy, Coins, MapPin, Shield, Users } from 'lucide-react';
 import { colors, gold } from '../styles/design-tokens';
+import { sitePath } from '../utils/siteConfig';
 
 type Lang = 'fr' | 'en';
+
+function sharePosts(lang: Lang) {
+  const recrute = sitePath('/recrute');
+  const tasker = sitePath('/register/tasker');
+  if (lang === 'fr') {
+    return {
+      fb: `🔧 BÊTA Québec Emplois — travailleurs recherchés (Montréal / Rive-Sud)
+
+Tu cherches des jobs flexibles près de chez toi? Ménage, déménagement, montage de meubles, jardinage…
+
+✅ Tu postules aux tâches qui t'intéressent (pas de course)
+✅ 60 crédits GRATUITS pour les 50 premiers inscrits
+✅ Crédit remboursé si tu n'es pas choisi
+
+Inscription gratuite 👉 ${recrute}
+
+#Montréal #Job #SideHustle #Québec`,
+      kijiji: `Titre: Travailleur autonome — jobs locaux (ménage, déménagement, montage)
+
+Description:
+Québec Emplois recrute des travailleurs pour sa bêta à Montréal et sur la Rive-Sud.
+
+Comment ça marche:
+- Vous créez un profil (services + secteur)
+- Vous postulez aux jobs publiés près de chez vous
+- Le client choisit le travailleur qui lui convient
+- Vous faites le travail et êtes payé (en ligne optionnel ou direct)
+
+Avantages bêta:
+- 60 crédits gratuits pour les 50 premiers inscrits
+- 1 crédit = 1 candidature; remboursé si non retenu
+- Plateforme québécoise, conforme Loi 25
+
+Inscription: ${tasker}`,
+      court: `💼 Jobs flexibles Montréal/Rive-Sud — Q-Emplois (bêta). Ménage, déménagement, montage. 60 crédits gratuits aux premiers inscrits. ${recrute}`,
+    };
+  }
+  return {
+    fb: `🔧 Q-Emplois BETA — taskers wanted (Montreal / South Shore)
+
+Looking for flexible local gigs? Cleaning, moving, furniture assembly, yard work…
+
+✅ Apply to jobs you want (no race)
+✅ 60 FREE credits for the first 50 signups
+✅ Credit refunded if you're not selected
+
+Free signup 👉 ${recrute}`,
+    kijiji: `Title: Local tasker — cleaning, moving, assembly (beta)
+
+Q-Emplois is recruiting taskers for our Montreal / South Shore beta.
+
+- Create a profile (services + area)
+- Apply to jobs near you
+- Client picks the best fit
+- Do the work and get paid (optional online or direct)
+
+Beta perks: 60 free credits (first 50), refund if not selected.
+
+Sign up: ${tasker}`,
+    court: `💼 Flexible gigs Montreal/South Shore — Q-Emplois beta. 60 free credits for early taskers. ${recrute}`,
+  };
+}
 
 const T = {
   fr: {
@@ -36,37 +99,6 @@ const T = {
     types: ['Ménage', 'Déménagement', 'Montage de meubles', 'Jardinage', 'Nettoyage', 'Livraison', 'Bricolage', 'Aide aux aînés'],
     shareTitle: 'Textes prêts à publier',
     shareHint: 'Copiez-collez sur Facebook, Kijiji ou dans un groupe de quartier.',
-    posts: {
-      fb: `🔧 BÊTA Québec Emplois — travailleurs recherchés (Montréal / Rive-Sud)
-
-Tu cherches des jobs flexibles près de chez toi? Ménage, déménagement, montage de meubles, jardinage…
-
-✅ Tu postules aux tâches qui t'intéressent (pas de course)
-✅ 60 crédits GRATUITS pour les 50 premiers inscrits
-✅ Crédit remboursé si tu n'es pas choisi
-
-Inscription gratuite 👉 https://q-emplois.vercel.app/recrute
-
-#Montréal #Job #SideHustle #Québec`,
-      kijiji: `Titre: Travailleur autonome — jobs locaux (ménage, déménagement, montage)
-
-Description:
-Québec Emplois recrute des travailleurs pour sa bêta à Montréal et sur la Rive-Sud.
-
-Comment ça marche:
-- Vous créez un profil (services + secteur)
-- Vous postulez aux jobs publiés près de chez vous
-- Le client choisit le travailleur qui lui convient
-- Vous faites le travail et êtes payé directement (coordination avec le client)
-
-Avantages bêta:
-- 60 crédits gratuits pour les 50 premiers inscrits
-- 1 crédit = 1 candidature; remboursé si non retenu
-- Plateforme québécoise, conforme Loi 25
-
-Inscription: https://q-emplois.vercel.app/register/tasker`,
-      court: `💼 Jobs flexibles Montréal/Rive-Sud — Q-Emplois (bêta). Ménage, déménagement, montage. 60 crédits gratuits aux premiers inscrits. https://q-emplois.vercel.app/recrute`,
-    },
     copied: 'Copié!',
     clientLink: 'Vous cherchez de l\'aide? Publiez une tâche',
   },
@@ -98,30 +130,6 @@ Inscription: https://q-emplois.vercel.app/register/tasker`,
     types: ['Cleaning', 'Moving', 'Furniture assembly', 'Yard work', 'Deep clean', 'Delivery', 'Handyman', 'Senior help'],
     shareTitle: 'Ready-to-post copy',
     shareHint: 'Copy-paste to Facebook, Kijiji or a neighborhood group.',
-    posts: {
-      fb: `🔧 Q-Emplois BETA — taskers wanted (Montreal / South Shore)
-
-Looking for flexible local gigs? Cleaning, moving, furniture assembly, yard work…
-
-✅ Apply to jobs you want (no race)
-✅ 60 FREE credits for the first 50 signups
-✅ Credit refunded if you're not selected
-
-Free signup 👉 https://q-emplois.vercel.app/recrute`,
-      kijiji: `Title: Local tasker — cleaning, moving, assembly (beta)
-
-Q-Emplois is recruiting taskers for our Montreal / South Shore beta.
-
-- Create a profile (services + area)
-- Apply to jobs near you
-- Client picks the best fit
-- Do the work and get paid directly (coordinate with client)
-
-Beta perks: 60 free credits (first 50), refund if not selected.
-
-Sign up: https://q-emplois.vercel.app/register/tasker`,
-      court: `💼 Flexible gigs Montreal/South Shore — Q-Emplois beta. 60 free credits for early taskers. https://q-emplois.vercel.app/recrute`,
-    },
     copied: 'Copied!',
     clientLink: 'Need help? Post a task',
   },
@@ -152,6 +160,7 @@ function CopyBlock({ label, text, copiedLabel }: { label: string; text: string; 
 export function RecrutePage() {
   const [lang, setLang] = useState<Lang>('fr');
   const t = T[lang];
+  const posts = sharePosts(lang);
 
   return (
     <div className="leather" style={{ minHeight: '100vh', color: colors.cream }}>
@@ -230,9 +239,9 @@ export function RecrutePage() {
           <Users className="w-6 h-6" style={{ color: gold }} /> {t.shareTitle}
         </h2>
         <p className="body-f muted2" style={{ fontSize: 14, marginBottom: 16 }}>{t.shareHint}</p>
-        <CopyBlock label="Facebook / groupes de quartier" text={t.posts.fb} copiedLabel={t.copied} />
-        <CopyBlock label="Kijiji" text={t.posts.kijiji} copiedLabel={t.copied} />
-        <CopyBlock label="Message court (SMS / story)" text={t.posts.court} copiedLabel={t.copied} />
+        <CopyBlock label="Facebook / groupes de quartier" text={posts.fb} copiedLabel={t.copied} />
+        <CopyBlock label="Kijiji" text={posts.kijiji} copiedLabel={t.copied} />
+        <CopyBlock label="Message court (SMS / story)" text={posts.court} copiedLabel={t.copied} />
       </section>
 
       <section style={{ maxWidth: 640, margin: '0 auto 64px', padding: '0 24px', textAlign: 'center' }}>
