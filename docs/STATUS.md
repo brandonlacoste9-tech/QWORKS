@@ -63,12 +63,15 @@ Frontend fallback API is hard-coded in `frontend/src/services/api.ts` and `front
 
 1. [x] Frontend custom domain live  
 2. [x] API health OK on current Railway host  
-3. [ ] Smoke E2E: register client → post job → register tasker → apply → message → select → optional pay  
+3. [x] Smoke E2E (2026-07-19) — see **[SMOKE_E2E.md](./SMOKE_E2E.md)**  
+   - PASS: health, guides, Stripe config, client register, tasker register, founding 60 credits, post job, list jobs, inquiry, cancel, login  
+   - GATE: apply requires ID upload + **admin verify** (by design)  
 4. [ ] Seed 5–10 real client jobs in wedge cities (not only demo cron)  
-5. [ ] Recruit founding taskers via `/recrute` share copy  
+5. [ ] Recruit founding taskers via `/recrute` share copy — **[FOUNDING_OPS_2WEEK.md](./FOUNDING_OPS_2WEEK.md)**  
 6. [ ] Stripe webhook points at **current** Railway URL  
 7. [ ] CORS / `FRONTEND_URL` include `https://www.quebec-emplois.ca`  
-8. [ ] Support inbox monitored (`support@qemplois.ca` or Telegram)
+8. [ ] Support inbox monitored (`support@qemplois.ca` or Telegram)  
+9. [ ] Admin verification SLA &lt; 24h (blocks all applies until done)
 
 ## Docs map
 
