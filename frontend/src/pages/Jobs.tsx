@@ -126,8 +126,13 @@ export function Jobs() {
   };
 
   const handleAccept = async (jobId: string) => {
+    if (!canTaskerApply(profile, profile?.verificationExpiresAt)) {
+      const st = getTaskerVerificationStatus(profile, profile?.verificationExpiresAt);
+      addToast(VERIFICATION_HINTS[st], 'error');
+      return;
+    }
     if (creditBalance === 0) {
-      addToast('Crédits insuffisants — achetez un pack', 'error');
+      addToast('Crédits insuffisants — achetez un pack ou utilisez vos crédits Founding', 'error');
       return;
     }
     setProcessingJob(jobId);
@@ -152,8 +157,10 @@ export function Jobs() {
         : undefined;
       if (msg?.includes('Crédits insuffisants')) {
         addToast('Crédits insuffisants', 'error');
+      } else if (msg) {
+        addToast(msg, 'error');
       } else {
-        addToast("Erreur lors de la candidature", 'error');
+        addToast('Erreur lors de la candidature', 'error');
       }
     } finally {
       setProcessingJob(null);
@@ -270,10 +277,27 @@ export function Jobs() {
 
         {!isClient && canTask && !taskerCanApply && (
           <div className="stitch-box body-f" style={{ background: 'rgba(184,123,68,0.12)', padding: 16, marginBottom: 20 }}>
-            <p className="cream-hi" style={{ fontWeight: 600, marginBottom: 6 }}>{VERIFICATION_LABELS[verificationStatus]}</p>
+            <p className="cream-hi" style={{ fontWeight: 600, marginBottom: 6 }}>{VERIFICATION_LABELS[verificationStatus]} — candidatures bloquées</p>
             <p className="muted" style={{ fontSize: 14, marginBottom: 12 }}>{VERIFICATION_HINTS[verificationStatus]}</p>
-            <Link to="/profile" className="gold-btn" style={{ padding: '8px 16px', fontSize: 13, textDecoration: 'none', display: 'inline-block' }}>
-              Compléter la vérification
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+              <Link to="/profile" className="gold-btn" style={{ padding: '8px 16px', fontSize: 13, textDecoration: 'none', display: 'inline-block' }}>
+                Compléter la vérification
+              </Link>
+              <span className="body-f muted2" style={{ fontSize: 13, alignSelf: 'center' }}>
+                Questions gratuites OK · postuler après approbation
+              </span>
+            </div>
+          </div>
+        )}
+
+        {!isClient && canTask && taskerCanApply && creditBalance === 0 && (
+          <div className="stitch-box body-f" style={{ background: 'rgba(21,35,50,0.7)', padding: 16, marginBottom: 20 }}>
+            <p className="cream-hi" style={{ fontWeight: 600, marginBottom: 6 }}>0 crédit — postuler indisponible</p>
+            <p className="muted" style={{ fontSize: 14, marginBottom: 12 }}>
+              Achetez un pack ou vérifiez votre solde Founding. Vous pouvez toujours poser des questions gratuites.
+            </p>
+            <Link to="/credits" className="gold-btn" style={{ padding: '8px 16px', fontSize: 13, textDecoration: 'none', display: 'inline-block' }}>
+              Voir les crédits
             </Link>
           </div>
         )}
@@ -307,10 +331,23 @@ export function Jobs() {
         ) : jobs.length === 0 ? (
           <div className="stitch-box" style={{ background: 'rgba(21,35,50,0.7)', padding: 48, textAlign: 'center' }}>
             <Briefcase className="w-16 h-16" style={{ margin: '0 auto 16px', color: 'rgba(217,179,140,0.3)' }} />
-            <h3 className="serif cream-hi" style={{ fontSize: 18, fontWeight: 700, marginBottom: 8 }}>Aucun job</h3>
-            <p className="body-f muted">
-              {isClient ? 'Publiez votre première tâche pour commencer.' : 'Reviens plus tard pour voir les nouvelles demandes.'}
+            <h3 className="serif cream-hi" style={{ fontSize: 18, fontWeight: 700, marginBottom: 8 }}>
+              {isClient ? 'Aucune tâche pour l\'instant' : 'Aucun job ouvert'}
+            </h3>
+            <p className="body-f muted" style={{ maxWidth: 400, margin: '0 auto 16px', lineHeight: 1.55 }}>
+              {isClient
+                ? 'Publiez votre première tâche — c\'est gratuit en bêta. Des travailleurs postulent; vous choisissez.'
+                : 'La bêta se remplit à Montréal & Rive-Sud. Activez les alertes Telegram dans Profil et revenez bientôt — ou posez des questions dès qu\'un job apparaît.'}
             </p>
+            {isClient ? (
+              <Link to="/post-job" className="gold-btn" style={{ padding: '10px 20px', fontSize: 14, textDecoration: 'none', display: 'inline-block' }}>
+                Publier une tâche
+              </Link>
+            ) : (
+              <Link to="/profile" className="ghost-btn" style={{ padding: '10px 20px', fontSize: 14, textDecoration: 'none', display: 'inline-block' }}>
+                Configurer mon profil / alertes
+              </Link>
+            )}
           </div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 18 }}>

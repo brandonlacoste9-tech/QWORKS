@@ -333,10 +333,27 @@ export function JobDetail() {
 
           {showTaskerActions && !taskerCanApply && job.status === 'pending' && !hasApplied && (
             <div className="stitch-box body-f" style={{ padding: 14, marginBottom: 20, background: 'rgba(184,123,68,0.12)' }}>
-              <p className="cream-hi" style={{ fontWeight: 600, marginBottom: 6 }}>{VERIFICATION_LABELS[verificationStatus]}</p>
+              <p className="cream-hi" style={{ fontWeight: 600, marginBottom: 6 }}>
+                {VERIFICATION_LABELS[verificationStatus]} — postuler bloqué
+              </p>
               <p className="muted" style={{ fontSize: 13, marginBottom: 10 }}>{VERIFICATION_HINTS[verificationStatus]}</p>
+              <p className="muted2" style={{ fontSize: 12, marginBottom: 10 }}>
+                Astuce bêta : utilisez « Poser une question » (gratuit) pendant l&apos;attente d&apos;approbation.
+              </p>
               <Link to="/profile" className="gold-btn" style={{ padding: '8px 14px', fontSize: 13, textDecoration: 'none', display: 'inline-block' }}>
                 Compléter la vérification
+              </Link>
+            </div>
+          )}
+
+          {showTaskerActions && taskerCanApply && (creditBalance ?? 0) === 0 && job.status === 'pending' && !hasApplied && (
+            <div className="stitch-box body-f" style={{ padding: 14, marginBottom: 20, background: 'rgba(21,35,50,0.55)' }}>
+              <p className="cream-hi" style={{ fontWeight: 600, marginBottom: 6 }}>0 crédit</p>
+              <p className="muted" style={{ fontSize: 13, marginBottom: 10 }}>
+                Il faut 1 crédit pour postuler (remboursé si non retenu). Les questions gratuites restent disponibles.
+              </p>
+              <Link to="/credits" className="gold-btn" style={{ padding: '8px 14px', fontSize: 13, textDecoration: 'none', display: 'inline-block' }}>
+                Obtenir des crédits
               </Link>
             </div>
           )}

@@ -42,9 +42,22 @@ export const VERIFICATION_LABELS: Record<TaskerVerificationStatus, string> = {
 };
 
 export const VERIFICATION_HINTS: Record<TaskerVerificationStatus, string> = {
-  verified: 'Vous pouvez postuler aux tâches.',
-  pending: 'Votre pièce d\'identité est en cours de vérification (sous 48 h).',
-  rejected: 'Téléversez un nouveau document sur votre profil pour relancer la vérification.',
-  unverified: 'Téléversez une pièce d\'identité sur votre profil pour commencer.',
-  expired: 'Votre vérification a expiré (12 mois). Téléversez une nouvelle pièce d\'identité pour continuer.',
+  verified: 'Vous pouvez postuler aux tâches (1 crédit par candidature).',
+  pending:
+    'Votre pièce d\'identité est en cours de vérification — habituellement sous 24 h en bêta. Vous pouvez poser des questions gratuites aux clients en attendant.',
+  rejected:
+    'Téléversez un nouveau document sur votre profil pour relancer la vérification. Sans approbation, vous ne pouvez pas postuler.',
+  unverified:
+    'Téléversez une pièce d\'identité sur votre profil pour postuler. Les crédits Founding ne se dépensent qu\'après approbation.',
+  expired:
+    'Votre vérification a expiré (12 mois). Téléversez une nouvelle pièce d\'identité pour continuer à postuler.',
+};
+
+/** Soft-launch CTA label for blocked apply states */
+export const VERIFICATION_CTA: Record<TaskerVerificationStatus, string> = {
+  verified: 'Voir les jobs',
+  pending: 'Voir mon profil',
+  rejected: 'Nouveau document',
+  unverified: 'Téléverser mon ID',
+  expired: 'Renouveler mon ID',
 };

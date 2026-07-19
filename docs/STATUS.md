@@ -66,14 +66,16 @@ Frontend fallback API is hard-coded in `frontend/src/services/api.ts` and `front
 3. [x] Smoke E2E (2026-07-19) — see **[SMOKE_E2E.md](./SMOKE_E2E.md)**  
    - PASS: health, guides, Stripe config, client register, tasker register, founding 60 credits, post job, list jobs, inquiry, cancel, login  
    - GATE: apply requires ID upload + **admin verify** (by design)  
-4. [ ] Seed 5–10 real client jobs in wedge cities (not only demo cron)  
-5. [ ] Recruit founding taskers via `/recrute` share copy — **[FOUNDING_OPS_2WEEK.md](./FOUNDING_OPS_2WEEK.md)**  
-6. [ ] Stripe webhook points at **current** Railway URL  
-7. [ ] CORS / `FRONTEND_URL` include `https://www.quebec-emplois.ca`  
-8. [ ] Support inbox monitored (`support@qemplois.ca` or Telegram)  
-9. [ ] Admin verification SLA &lt; 24h (blocks all applies until done)  
-10. [ ] Set Railway `ADMIN_EMAIL` (+ optional `TELEGRAM_ADMIN_CHAT_ID`) for digests  
-11. [ ] Confirm Resend can deliver to `ADMIN_EMAIL`
+4. [x] Admin verification digests (instant + 08:00 ET) + admin queue UX  
+5. [x] Soft-launch product polish: verify-gate banners, founding badge, empty states, apply error copy  
+6. [ ] Seed 5–10 real client jobs in wedge cities (not only demo cron)  
+7. [ ] Recruit founding taskers via `/recrute` share copy — **[FOUNDING_OPS_2WEEK.md](./FOUNDING_OPS_2WEEK.md)**  
+8. [ ] Stripe webhook points at **current** Railway URL  
+9. [ ] CORS / `FRONTEND_URL` include `https://www.quebec-emplois.ca`  
+10. [ ] Support inbox monitored (`support@qemplois.ca` or Telegram)  
+11. [ ] Admin verification SLA &lt; 24h (blocks all applies until done)  
+12. [x] Set Railway `ADMIN_EMAIL` for digests (confirm Resend delivery)  
+13. [ ] Optional `TELEGRAM_ADMIN_CHAT_ID` for mobile pings
 
 ## Docs map
 

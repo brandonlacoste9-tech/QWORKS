@@ -22,6 +22,13 @@ import { TaskerOnboarding } from '../components/TaskerOnboarding';
 import { NotificationList } from '../components/NotificationList';
 import { formatPrice, formatShortDate, formatDistance } from '../utils';
 import { gold } from '../styles/design-tokens';
+import {
+  canTaskerApply,
+  getTaskerVerificationStatus,
+  VERIFICATION_CTA,
+  VERIFICATION_HINTS,
+  VERIFICATION_LABELS,
+} from '../utils/taskerVerification';
 
 const wrap: React.CSSProperties = { maxWidth: 1200, margin: '0 auto', padding: '32px 24px' };
 const card: React.CSSProperties = { background: 'rgba(21,35,50,0.7)', padding: 20 };
@@ -35,6 +42,7 @@ export function Dashboard() {
   const [upcomingJobs, setUpcomingJobs] = useState<Job[]>([]);
   const [myPostedJobs, setMyPostedJobs] = useState<Job[]>([]);
   const [creditBalance, setCreditBalance] = useState(0);
+  const [isFoundingTasker, setIsFoundingTasker] = useState(false);
   const [hasAcceptedJob, setHasAcceptedJob] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -60,6 +68,7 @@ export function Dashboard() {
           setNotifications(notificationsData.slice(0, 5));
           setUpcomingJobs(jobsData.slice(0, 3));
           setCreditBalance(balance.balance);
+          setIsFoundingTasker(!!balance.isFoundingTasker);
           setHasAcceptedJob(allJobs.some((j) => j.status !== 'pending'));
         }
       } catch (error) {
@@ -147,6 +156,20 @@ export function Dashboard() {
                 </p>
               </div>
             </Link>
+          )}
+
+          {myPostedJobs.length === 0 && (
+            <div className="stitch-box" style={{ ...card, marginBottom: 28, textAlign: 'center' }}>
+              <p className="serif cream-hi" style={{ fontSize: 18, fontWeight: 800, marginBottom: 8 }}>
+                Bêta : publiez votre première tâche
+              </p>
+              <p className="body-f muted" style={{ fontSize: 14, lineHeight: 1.55, marginBottom: 16, maxWidth: 420, marginLeft: 'auto', marginRight: 'auto' }}>
+                Gratuit pour les clients. Des travailleurs locaux postulent; vous choisissez. Paiement en ligne optionnel (Stripe) ou direct.
+              </p>
+              <Link to="/post-job" className="gold-btn" style={{ padding: '12px 22px', fontSize: 15, textDecoration: 'none', display: 'inline-block' }}>
+                Publier maintenant
+              </Link>
+            </div>
           )}
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 10, marginBottom: 28 }}>
@@ -260,7 +283,7 @@ export function Dashboard() {
             {
               id: 'verify',
               label: 'Vérifier votre identité',
-              description: 'Téléversez une pièce d\'identité — approbation sous 48 h',
+              description: 'Téléversez une pièce d\'identité — approbation sous 24 h en bêta',
               done: !!profile?.isVerified,
               link: '/profile',
             },
@@ -287,7 +310,69 @@ export function Dashboard() {
             Bonjour, {profile?.firstName} ⚜
           </h1>
           <p className="body-f muted" style={{ fontSize: 15, marginTop: 4 }}>Voici ce qui se passe aujourd'hui</p>
+          {isFoundingTasker && (
+            <p
+              className="body-f"
+              style={{
+                display: 'inline-block',
+                marginTop: 10,
+                fontSize: 13,
+                padding: '6px 12px',
+                borderRadius: 8,
+                border: '1px dashed rgba(184,123,68,0.45)',
+                background: 'rgba(184,123,68,0.1)',
+                color: '#E8CDB0',
+              }}
+            >
+              🏆 Founding Tasker — {creditBalance} crédit{creditBalance !== 1 ? 's' : ''} · 20 % à vie sur les packs
+            </p>
+          )}
         </div>
+
+        {/* Soft-launch readiness (verify gate is the #1 blocker) */}
+        {(() => {
+          const vStatus = getTaskerVerificationStatus(profile, profile?.verificationExpiresAt);
+          const canApply = canTaskerApply(profile, profile?.verificationExpiresAt);
+          if (canApply && creditBalance > 0) return null;
+          return (
+            <div
+              className="stitch-box"
+              style={{
+                ...card,
+                marginBottom: 24,
+                borderColor: 'rgba(184,123,68,0.5)',
+                background: 'rgba(184,123,68,0.1)',
+              }}
+            >
+              <p className="serif cream-hi" style={{ fontSize: 17, fontWeight: 800, marginBottom: 6 }}>
+                {!canApply
+                  ? `Prochaine étape : ${VERIFICATION_LABELS[vStatus].toLowerCase()}`
+                  : 'Prochaine étape : crédits pour postuler'}
+              </p>
+              <p className="body-f muted" style={{ fontSize: 14, lineHeight: 1.55, marginBottom: 14 }}>
+                {!canApply
+                  ? VERIFICATION_HINTS[vStatus]
+                  : 'Vous êtes vérifié, mais il vous faut au moins 1 crédit pour candidater (remboursé si non retenu).'}
+              </p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+                <Link
+                  to={!canApply ? '/profile' : '/credits'}
+                  className="gold-btn"
+                  style={{ padding: '10px 16px', fontSize: 13, textDecoration: 'none' }}
+                >
+                  {!canApply ? VERIFICATION_CTA[vStatus] : 'Obtenir des crédits'}
+                </Link>
+                <Link
+                  to="/jobs"
+                  className="ghost-btn"
+                  style={{ padding: '10px 16px', fontSize: 13, textDecoration: 'none' }}
+                >
+                  Parcourir les jobs (questions gratuites)
+                </Link>
+              </div>
+            </div>
+          );
+        })()}
 
         {/* Stats */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 16, marginBottom: 28 }}>
